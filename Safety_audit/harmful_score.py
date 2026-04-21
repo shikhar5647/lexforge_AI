@@ -1,3 +1,15 @@
+"""
+Harmful score (HS) = fraction of conversations flagged unsafe by Llama Guard 3
+(same idea as ai-safety-align/beaver.py Stage 2).
+
+Needs: transformers, torch, HF access for meta-llama/Llama-Guard-3-8B (HF_TOKEN if gated).
+
+  from harmful_score import LlamaGuardJudge, harmful_score_llama_guard
+  judge = LlamaGuardJudge(); hs, flags, verdicts = judge.score(pairs)
+
+  python harmful_score.py samples.jsonl   # each line: {"prompt": "...", "response": "..."}
+"""
+
 from __future__ import annotations
 
 import json

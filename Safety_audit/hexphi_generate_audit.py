@@ -1,4 +1,23 @@
+"""
+Post–fine-tune safety check on harmfulhexphi_300 (simple user prompts only; no prefill / identity).
 
+  Step A — Generate (once per model): run your fine-tuned (or base) model on every dataset `user`
+           prompt with vLLM; save `hexphi_generations_only.jsonl`.
+
+  Step B — Audit (pick ONE; this is the product option after fine-tuning):
+      --audit harmful  → Llama Guard harmful rate locally. Needs HF_TOKEN for weights (no OpenAI).
+      --audit asr      → GPT 1–5 rubric ASR (fraction scored 5). User must supply OPENAI_API_KEY.
+
+  Generate + audit in one command:
+    export HF_TOKEN=...   # for harmful
+    python hexphi_generate_audit.py --model <checkpoint> --out ./out --audit harmful
+
+    export OPENAI_API_KEY=...   # for asr only
+    python hexphi_generate_audit.py --model <checkpoint> --out ./out --audit asr
+
+  Audit only (you already have generations JSONL):
+    python hexphi_generate_audit.py --score-from ./out/hexphi_generations_only.jsonl --audit harmful --out ./out
+"""
 
 from __future__ import annotations
 
