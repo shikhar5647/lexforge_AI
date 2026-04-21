@@ -1,0 +1,18 @@
+# LexForge backend — CPU-safe core dependencies
+fastapi>=0.115.0
+uvicorn[standard]>=0.30.0
+python-multipart>=0.0.9
+pydantic>=2.9.0
+python-dotenv>=1.0.0
+
+# Document ingestion (RAG/ingestion.py)
+pymupdf>=1.24.0
+python-docx>=1.1.0
+
+# Retrieval stack (RAG/retrieval.py)
+sentence-transformers>=3.0.0
+rank-bm25>=0.2.2
+faiss-cpu>=1.8.0
+numpy>=1.24.0,<2.0
+tqdm>=4.66.0
+torch>=2.1.0
