@@ -1,0 +1,29 @@
+FROM python:3.11-slim AS backend
+
+WORKDIR /app
+
+# System deps for PyMuPDF and python-docx
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential libffi-dev && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Python deps
+COPY backend/requirements.txt /app/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy RAG source code (your existing RAG/ folder)
+COPY RAG/ /app/rag_src/
+
+# Copy the FastAPI app
+COPY backend/app.py /app/app.py
+
+# Persistent storage for uploaded contracts
+VOLUME /data
+
+ENV RAG_SRC_DIR=/app/rag_src
+ENV LEXFORGE_DATA_DIR=/data
+ENV VLLM_ENABLED=false
+
+EXPOSE 8000
+
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

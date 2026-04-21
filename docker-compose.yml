@@ -1,0 +1,33 @@
+# docker compose up --build
+# Then open http://localhost
+
+version: "3.9"
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.backend
+    environment:
+      - VLLM_ENABLED=false
+      - LEXFORGE_DATA_DIR=/data
+      - RAG_SRC_DIR=/app/rag_src
+      - CORS_ORIGINS=http://localhost,http://localhost:3000
+    volumes:
+      - lexforge-data:/data
+    ports:
+      - "8000:8000"     # optional direct access for debugging
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile.frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  lexforge-data:

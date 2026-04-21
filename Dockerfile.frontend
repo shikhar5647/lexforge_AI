@@ -1,0 +1,20 @@
+FROM node:20-alpine AS build
+
+WORKDIR /app
+COPY lexforge-web/package.json lexforge-web/package-lock.json ./
+RUN npm ci
+
+COPY lexforge-web/ ./
+
+# Flip the mock API flag off at build time
+RUN sed -i 's/const USE_MOCK_API = true/const USE_MOCK_API = false/' src/lib/api.ts
+
+RUN npm run build
+
+# --- Production: serve static files via nginx ---
+FROM nginx:alpine
+
+COPY --from=build /app/dist /usr/share/nginx/html
+COPY nginx/default.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
