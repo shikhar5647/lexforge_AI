@@ -10,12 +10,12 @@ import type { Contract, ChatMessage } from '@/types';
 type RagStrategy = NonNullable<ChatMessage['ragStrategy']>;
 
 const RAG_STRATEGIES: { value: RagStrategy; label: string; description: string }[] = [
-  { value: 'adaptive',    label: 'Adaptive',    description: 'Auto-routes by query complexity' },
-  { value: 'naive',       label: 'Naive',       description: 'Simple top-K dense retrieval' },
-  { value: 'advanced',    label: 'Advanced',    description: 'Hybrid + rerank + compress' },
-  { value: 'corrective',  label: 'Corrective',  description: 'NLI gate + web fallback' },
-  { value: 'self',        label: 'Self-RAG',    description: 'Reflection tokens' },
-  { value: 'graph',       label: 'Graph',       description: 'Knowledge graph traversal' },
+  { value: 'adaptive',    label: 'Adaptive',    description: 'Basic hybrid retrieval (BM25 + dense + rerank)' },
+  { value: 'naive',       label: 'Naive',       description: 'Basic hybrid retrieval (BM25 + dense + rerank)' },
+  { value: 'advanced',    label: 'Advanced',    description: 'Self-consistency (3 independent samples merged)' },
+  { value: 'corrective',  label: 'Corrective',  description: 'Reflexion loop — draft → evaluate → reflect (3 trials)' },
+  { value: 'self',        label: 'Self-RAG',    description: 'Self-refine — draft → critique → refine (2 rounds)' },
+  { value: 'graph',       label: 'Graph',       description: 'Multi-agent agentic retrieval with supervisor loop' },
 ];
 
 const SUGGESTED_QUESTIONS = [
@@ -253,10 +253,15 @@ function MessageBubble({ message }: { message: ChatMessage }) {
         {/* Metadata bar */}
         {!isUser && message.confidence !== undefined && (
           <div className="mt-2 flex items-center gap-3 text-xs text-slate-400">
-            <span className="flex items-center gap-1">
-              <ExternalLink size={11} />
-              {message.ragStrategy}
-            </span>
+            {message.ragStrategy && (() => {
+              const s = RAG_STRATEGIES.find((r) => r.value === message.ragStrategy);
+              return (
+                <span className="flex items-center gap-1" title={s?.description}>
+                  <ExternalLink size={11} />
+                  {s ? `${s.label} RAG` : message.ragStrategy}
+                </span>
+              );
+            })()}
             <span>Confidence: {(message.confidence * 100).toFixed(0)}%</span>
             {message.correctionRounds !== undefined && message.correctionRounds > 0 && (
               <span>{message.correctionRounds} self-correction{message.correctionRounds > 1 ? 's' : ''}</span>
